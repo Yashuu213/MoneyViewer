@@ -1,0 +1,70 @@
+# MoneyTracker - Project Documentation
+
+## 1. Project Overview
+MoneyTracker is a personal finance management web application designed to help users track their income, expenses, and lending activities. It features a secure, multi-user environment where each user has their own private dashboard and data.
+
+**Key Features:**
+-   **Secure Authentication:** Users must register and login to access their data.
+-   **Data Isolation:** Each user's data is private and separate from others.
+-   **Dashboard:** View total balance, income, and expenses. Add transactions.
+-   **Analysis:** Visual charts (Pie & Bar) to analyze spending habits.
+-   **Lending Tracker:** Track money lent to or borrowed from others.
+-   **Persistent Storage:** Data is stored in a secure database (SQLite for dev, PostgreSQL for production), not just in the browser.
+
+## 2. How It Works (Pipeline)
+
+### Frontend (User Interface)
+-   **Framework:** React (via Vite).
+-   **Routing:** `react-router-dom` handles navigation between Login, Register, Dashboard, Analysis, and Lending pages.
+-   **State Management:** `TransactionContext` manages the application state. Instead of saving to `localStorage`, it now makes **API calls** to the backend to fetch, add, or delete data.
+-   **Protection:** Routes are protected. If a user is not logged in, they are redirected to the Login page.
+
+### Backend (API & Database)
+-   **Server:** Python (Flask).
+-   **Database:** SQLAlchemy ORM connecting to SQLite (local) or PostgreSQL (production).
+-   **Authentication:** `Flask-Login` manages user sessions. Passwords are hashed using `werkzeug.security` for safety.
+-   **API:** The backend exposes REST API endpoints (e.g., `/api/transactions`, `/api/login`) that the frontend consumes.
+
+### Deployment Pipeline
+1.  **Build:** `npm run build` compiles the React frontend into static files (`dist/` folder).
+2.  **Serve:** The Flask app (`app.py`) serves these static files as the main entry point.
+3.  **Run:** `gunicorn` runs the Flask app in production, handling both API requests and serving the frontend.
+
+## 3. File Explanations
+
+### Backend Files
+-   **`app.py`**: The core of the backend.
+    -   **Config:** Sets up the database connection and secret keys.
+    -   **Models:** Defines the database structure:
+        -   `User`: Stores username and hashed password.
+        -   `Transaction`: Stores income/expenses, linked to a `User`.
+        -   `Debt`: Stores lending records, linked to a `User`.
+    -   **Auth Routes:** `/api/register`, `/api/login`, `/api/logout`, `/api/check_auth`.
+    -   **Data Routes:** `/api/transactions` and `/api/debts` (CRUD operations).
+    -   **Serving:** Serves the `index.html` from the `dist` folder for any non-API route.
+
+-   **`requirements.txt`**: Lists Python dependencies: `Flask`, `Flask-SQLAlchemy` (DB), `Flask-Login` (Auth), `gunicorn` (Server).
+-   **`render.yaml`**: Deployment configuration for Render.com. Tells it to build the frontend and run the backend with Gunicorn.
+
+### Frontend Files (`src/`)
+-   **`main.jsx`**: Entry point. Renders `App.jsx`.
+-   **`App.jsx`**: Sets up the Router. Defines routes (`/`, `/login`, etc.) and wraps protected routes in the `ProtectedRoute` component.
+-   **`context/TransactionContext.jsx`**:
+    -   Manages `user` state (logged in/out).
+    -   Contains functions (`login`, `register`, `addTransaction`, etc.) that call the backend APIs.
+    -   Fetches data automatically when a user logs in.
+
+### Pages (`src/pages/`)
+-   **`Login.jsx` & `Register.jsx`**: Forms for user authentication. They call the `login` and `register` functions from the Context.
+-   **`Dashboard.jsx`**: Main view. Shows balance cards and recent transactions.
+-   **`Analysis.jsx`**: Analytics view. Renders charts based on the user's transaction data.
+-   **`Lending.jsx`**: Lending view. Manages debts and calculates net balances per person.
+
+### Components (`src/components/`)
+-   **`Layout.jsx`**: Wraps the application. Contains the **Header** (with Navigation links and Logout button) and the **Bottom Navigation** (for mobile).
+-   **`TransactionForm.jsx`**: Form to add new transactions.
+-   **`TransactionList.jsx`**: List of recent transactions.
+
+### Config Files
+-   **`vite.config.js`**: Configures Vite. Includes a **Proxy** setting (`/api` -> `localhost:5000`) so the frontend can talk to the backend during development.
+-   **`build.sh`**: Script to install dependencies and build the app for deployment.

@@ -1,7 +1,14 @@
-import React from 'react';
-import { LayoutDashboard, PieChart, Wallet } from 'lucide-react';
+import React, { useContext } from 'react';
+import { Link, useLocation } from 'react-router-dom';
+import { TransactionContext } from '../context/TransactionContext';
+import { LayoutDashboard, PieChart, Wallet, LogOut } from 'lucide-react';
 
-const Layout = ({ children, activeTab, setActiveTab }) => {
+const Layout = ({ children }) => {
+    const location = useLocation();
+    const { logout, user } = useContext(TransactionContext);
+
+    const isActive = (path) => location.pathname === path;
+
     return (
         <div className="min-h-screen bg-gray-50 flex flex-col">
             {/* Header */}
@@ -13,6 +20,31 @@ const Layout = ({ children, activeTab, setActiveTab }) => {
                         </div>
                         <h1 className="text-xl font-bold text-gray-900">MoneyTracker</h1>
                     </div>
+
+                    {/* Desktop Navigation */}
+                    <nav className="hidden sm:flex items-center gap-6">
+                        <Link to="/" className={`text-sm font-medium hover:text-blue-600 transition-colors ${isActive('/') ? 'text-blue-600' : 'text-gray-600'}`}>
+                            Dashboard
+                        </Link>
+                        <Link to="/analysis" className={`text-sm font-medium hover:text-blue-600 transition-colors ${isActive('/analysis') ? 'text-blue-600' : 'text-gray-600'}`}>
+                            Analysis
+                        </Link>
+                        <Link to="/lending" className={`text-sm font-medium hover:text-blue-600 transition-colors ${isActive('/lending') ? 'text-blue-600' : 'text-gray-600'}`}>
+                            Lending
+                        </Link>
+                    </nav>
+                    <div className="flex items-center gap-4">
+                        <span className="text-sm text-gray-600 hidden sm:block">
+                            Hello, <strong>{user?.username}</strong>
+                        </span>
+                        <button
+                            onClick={logout}
+                            className="p-2 text-gray-500 hover:text-red-600 transition-colors"
+                            title="Logout"
+                        >
+                            <LogOut className="w-5 h-5" />
+                        </button>
+                    </div>
                 </div>
             </header>
 
@@ -22,32 +54,32 @@ const Layout = ({ children, activeTab, setActiveTab }) => {
             </main>
 
             {/* Mobile Bottom Navigation */}
-            <nav className="bg-white border-t border-gray-200 fixed bottom-0 w-full pb-safe">
+            <nav className="bg-white border-t border-gray-200 fixed bottom-0 w-full pb-safe sm:hidden">
                 <div className="flex justify-around items-center h-16">
-                    <button
-                        onClick={() => setActiveTab('dashboard')}
-                        className={`flex flex-col items-center justify-center w-full h-full space-y-1 ${activeTab === 'dashboard' ? 'text-blue-600' : 'text-gray-500 hover:text-gray-900'
+                    <Link
+                        to="/"
+                        className={`flex flex-col items-center justify-center w-full h-full space-y-1 ${isActive('/') ? 'text-blue-600' : 'text-gray-500 hover:text-gray-900'
                             }`}
                     >
                         <LayoutDashboard className="w-6 h-6" />
                         <span className="text-xs font-medium">Dashboard</span>
-                    </button>
-                    <button
-                        onClick={() => setActiveTab('analysis')}
-                        className={`flex flex-col items-center justify-center w-full h-full space-y-1 ${activeTab === 'analysis' ? 'text-blue-600' : 'text-gray-500 hover:text-gray-900'
+                    </Link>
+                    <Link
+                        to="/analysis"
+                        className={`flex flex-col items-center justify-center w-full h-full space-y-1 ${isActive('/analysis') ? 'text-blue-600' : 'text-gray-500 hover:text-gray-900'
                             }`}
                     >
                         <PieChart className="w-6 h-6" />
                         <span className="text-xs font-medium">Analysis</span>
-                    </button>
-                    <button
-                        onClick={() => setActiveTab('lending')}
-                        className={`flex flex-col items-center justify-center w-full h-full space-y-1 ${activeTab === 'lending' ? 'text-blue-600' : 'text-gray-500 hover:text-gray-900'
+                    </Link>
+                    <Link
+                        to="/lending"
+                        className={`flex flex-col items-center justify-center w-full h-full space-y-1 ${isActive('/lending') ? 'text-blue-600' : 'text-gray-500 hover:text-gray-900'
                             }`}
                     >
                         <Wallet className="w-6 h-6" />
                         <span className="text-xs font-medium">Lending</span>
-                    </button>
+                    </Link>
                 </div>
             </nav>
         </div>
