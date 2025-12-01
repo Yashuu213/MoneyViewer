@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: upi-money-viewer
+    env: python
+    buildCommand: ./build.sh
+    startCommand: gunicorn app:app
+    staticPublishPath: ./dist
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
