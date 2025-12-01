@@ -32,13 +32,13 @@ const Lending = () => {
                 <div className="bg-green-600 rounded-xl p-4 text-white shadow-lg">
                     <h3 className="text-green-100 font-medium text-sm mb-1">You'll Get</h3>
                     <p className="text-2xl font-bold">
-                        ${peopleBalances.filter(p => p.balance > 0).reduce((sum, p) => sum + p.balance, 0).toFixed(2)}
+                        ₹{peopleBalances.filter(p => p.balance > 0).reduce((sum, p) => sum + p.balance, 0).toFixed(2)}
                     </p>
                 </div>
                 <div className="bg-red-600 rounded-xl p-4 text-white shadow-lg">
                     <h3 className="text-red-100 font-medium text-sm mb-1">You Owe</h3>
                     <p className="text-2xl font-bold">
-                        ${Math.abs(peopleBalances.filter(p => p.balance < 0).reduce((sum, p) => sum + p.balance, 0)).toFixed(2)}
+                        ₹{Math.abs(peopleBalances.filter(p => p.balance < 0).reduce((sum, p) => sum + p.balance, 0)).toFixed(2)}
                     </p>
                 </div>
             </div>
@@ -54,8 +54,8 @@ const Lending = () => {
                                 type="button"
                                 onClick={() => setType('lent')}
                                 className={`flex items-center justify-center gap-2 p-3 rounded-lg border transition-colors ${type === 'lent'
-                                        ? 'bg-green-50 border-green-200 text-green-700'
-                                        : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'
+                                    ? 'bg-green-50 border-green-200 text-green-700'
+                                    : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'
                                     }`}
                             >
                                 <ArrowUpCircle className="w-5 h-5" />
@@ -65,8 +65,8 @@ const Lending = () => {
                                 type="button"
                                 onClick={() => setType('borrowed')}
                                 className={`flex items-center justify-center gap-2 p-3 rounded-lg border transition-colors ${type === 'borrowed'
-                                        ? 'bg-red-50 border-red-200 text-red-700'
-                                        : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'
+                                    ? 'bg-red-50 border-red-200 text-red-700'
+                                    : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'
                                     }`}
                             >
                                 <ArrowDownCircle className="w-5 h-5" />
@@ -133,9 +133,9 @@ const Lending = () => {
                                                 <p className="font-medium text-gray-900">{person.name}</p>
                                                 <p className="text-sm text-gray-500">
                                                     {person.balance > 0
-                                                        ? `owes you $${person.balance.toFixed(2)}`
+                                                        ? `owes you ₹${person.balance.toFixed(2)}`
                                                         : person.balance < 0
-                                                            ? `you owe $${Math.abs(person.balance).toFixed(2)}`
+                                                            ? `you owe ₹${Math.abs(person.balance).toFixed(2)}`
                                                             : 'settled up'}
                                                 </p>
                                             </div>
@@ -171,7 +171,7 @@ const Lending = () => {
                                                         <div className="flex items-center gap-3">
                                                             <span className={`text-sm font-semibold ${txn.type === 'lent' ? 'text-green-600' : 'text-red-600'
                                                                 }`}>
-                                                                {txn.type === 'lent' ? '+' : '-'}${txn.amount.toFixed(2)}
+                                                                {txn.type === 'lent' ? '+' : '-'}₹{txn.amount.toFixed(2)}
                                                             </span>
                                                             <button
                                                                 onClick={(e) => {

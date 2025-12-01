@@ -63,7 +63,7 @@ const Analysis = () => {
                                             <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                                         ))}
                                     </Pie>
-                                    <Tooltip formatter={(value) => `$${value.toFixed(2)}`} />
+                                    <Tooltip formatter={(value) => `₹${value.toFixed(2)}`} />
                                     <Legend />
                                 </PieChart>
                             </ResponsiveContainer>
@@ -85,7 +85,7 @@ const Analysis = () => {
                                     <CartesianGrid strokeDasharray="3 3" />
                                     <XAxis dataKey="name" />
                                     <YAxis />
-                                    <Tooltip formatter={(value) => `$${value.toFixed(2)}`} />
+                                    <Tooltip formatter={(value) => `₹${value.toFixed(2)}`} />
                                     <Bar dataKey="amount" fill="#3b82f6" radius={[4, 4, 0, 0]} />
                                 </BarChart>
                             </ResponsiveContainer>

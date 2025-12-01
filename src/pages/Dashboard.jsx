@@ -28,7 +28,7 @@ const Dashboard = () => {
                             <Wallet className="w-6 h-6 text-white" />
                         </div>
                     </div>
-                    <p className="text-3xl font-bold">${balance.toFixed(2)}</p>
+                    <p className="text-3xl font-bold">₹{balance.toFixed(2)}</p>
                 </div>
 
                 <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
@@ -38,7 +38,7 @@ const Dashboard = () => {
                             <TrendingUp className="w-6 h-6 text-green-600" />
                         </div>
                     </div>
-                    <p className="text-2xl font-bold text-gray-900">+${income.toFixed(2)}</p>
+                    <p className="text-2xl font-bold text-gray-900">+₹{income.toFixed(2)}</p>
                 </div>
 
                 <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
@@ -48,7 +48,7 @@ const Dashboard = () => {
                             <TrendingDown className="w-6 h-6 text-red-600" />
                         </div>
                     </div>
-                    <p className="text-2xl font-bold text-gray-900">-${expense.toFixed(2)}</p>
+                    <p className="text-2xl font-bold text-gray-900">-₹{expense.toFixed(2)}</p>
                 </div>
             </div>
 

@@ -32,7 +32,7 @@ const TransactionList = () => {
                             <div className="flex items-center gap-4">
                                 <span className={`font-semibold ${transaction.type === 'income' ? 'text-green-600' : 'text-red-600'
                                     }`}>
-                                    {transaction.type === 'income' ? '+' : '-'}${transaction.amount.toFixed(2)}
+                                    {transaction.type === 'income' ? '+' : '-'}₹{transaction.amount.toFixed(2)}
                                 </span>
                                 <button
                                     onClick={() => deleteTransaction(transaction.id)}
