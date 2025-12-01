@@ -185,6 +185,13 @@ def serve(path):
     if path != "" and os.path.exists(app.static_folder + '/' + path):
         return send_from_directory(app.static_folder, path)
     else:
+        print(f"Requested path: {path}")
+        print(f"Static folder: {app.static_folder}")
+        print(f"Current working directory: {os.getcwd()}")
+        if os.path.exists(app.static_folder):
+             print(f"Contents of static folder: {os.listdir(app.static_folder)}")
+        else:
+             print("Static folder does not exist!")
         return send_from_directory(app.static_folder, 'index.html')
 
 if __name__ == '__main__':
