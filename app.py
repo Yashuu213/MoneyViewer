@@ -5,7 +5,10 @@ from flask_login import LoginManager, UserMixin, login_user, login_required, log
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
 
-app = Flask(__name__, static_folder='dist', static_url_path='')
+# Use absolute path for static folder to avoid issues with relative paths
+basedir = os.path.abspath(os.path.dirname(__file__))
+dist_folder = os.path.join(basedir, 'dist')
+app = Flask(__name__, static_folder=dist_folder, static_url_path='')
 
 # Configuration
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-secret-key-change-this')
@@ -182,16 +185,9 @@ def delete_debt(id):
 @app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')
 def serve(path):
-    if path != "" and os.path.exists(app.static_folder + '/' + path):
+    if path != "" and os.path.exists(os.path.join(app.static_folder, path)):
         return send_from_directory(app.static_folder, path)
     else:
-        print(f"Requested path: {path}")
-        print(f"Static folder: {app.static_folder}")
-        print(f"Current working directory: {os.getcwd()}")
-        if os.path.exists(app.static_folder):
-             print(f"Contents of static folder: {os.listdir(app.static_folder)}")
-        else:
-             print("Static folder does not exist!")
         return send_from_directory(app.static_folder, 'index.html')
 
 if __name__ == '__main__':
