@@ -179,7 +179,34 @@ def delete_debt(id):
     
     db.session.delete(debt)
     db.session.commit()
+    db.session.delete(debt)
+    db.session.commit()
     return jsonify({'message': 'Debt deleted'})
+
+# --- Debug Route ---
+@app.route('/debug-files')
+def debug_files():
+    output = []
+    output.append(f"Current Working Directory: {os.getcwd()}")
+    output.append(f"Base Directory: {basedir}")
+    output.append(f"Static Folder: {app.static_folder}")
+    
+    output.append("\n--- Root Directory Listing ---")
+    try:
+        output.append(str(os.listdir(os.getcwd())))
+    except Exception as e:
+        output.append(f"Error listing root: {e}")
+        
+    output.append("\n--- Static Folder Listing ---")
+    try:
+        if os.path.exists(app.static_folder):
+            output.append(str(os.listdir(app.static_folder)))
+        else:
+            output.append("Static folder does NOT exist")
+    except Exception as e:
+        output.append(f"Error listing static folder: {e}")
+        
+    return "<pre>" + "\n".join(output) + "</pre>"
 
 # --- Serve Frontend ---
 @app.route('/', defaults={'path': ''})
