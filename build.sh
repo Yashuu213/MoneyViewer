@@ -6,10 +6,10 @@ echo "Current directory: $(pwd)"
 ls -la
 
 # Build the frontend
-echo "Installing npm dependencies..."
-npm install
-echo "Building frontend..."
-npm run build
+# echo "Installing npm dependencies..."
+# npm install
+# echo "Building frontend..."
+# npm run build
 
 echo "Build complete. Checking dist folder..."
 if [ -d "dist" ]; then
