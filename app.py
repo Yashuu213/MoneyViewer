@@ -13,7 +13,16 @@ app = Flask(__name__, static_folder=dist_folder, static_url_path='')
 # Configuration
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-secret-key-change-this')
 # Use SQLite for local development, Render will provide a DATABASE_URL for Postgres
-database_url = os.environ.get('DATABASE_URL', 'sqlite:///site.db')
+# Use SQLite for local development, Render will provide a DATABASE_URL for Postgres
+database_url = os.environ.get('DATABASE_URL')
+
+if not database_url:
+    # Local development: Use absolute path to instance/site.db
+    db_path = os.path.join(basedir, 'instance', 'site.db')
+    # Ensure instance directory exists
+    os.makedirs(os.path.join(basedir, 'instance'), exist_ok=True)
+    database_url = f'sqlite:///{db_path}'
+
 if database_url.startswith("postgres://"):
     database_url = database_url.replace("postgres://", "postgresql://", 1)
 app.config['SQLALCHEMY_DATABASE_URI'] = database_url
@@ -221,4 +230,4 @@ if __name__ == '__main__':
     with app.app_context():
         db.create_all()
     print("Starting Flask server at http://localhost:5000")
-    app.run(use_reloader=True, port=5000, threaded=True)
+    app.run(use_reloader=False, port=5000, threaded=True)
