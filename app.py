@@ -8,7 +8,7 @@ from datetime import datetime
 # Use absolute path for static folder to avoid issues with relative paths
 basedir = os.path.abspath(os.path.dirname(__file__))
 dist_folder = os.path.join(basedir, 'dist')
-app = Flask(__name__, static_folder=dist_folder, static_url_path='')
+app = Flask(__name__, static_folder=dist_folder)
 
 # Configuration
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-secret-key-change-this')
@@ -221,6 +221,8 @@ def debug_files():
 @app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')
 def serve(path):
+    if path.startswith('api/'):
+        return jsonify({'error': 'Not Found'}), 404
     if path != "" and os.path.exists(os.path.join(app.static_folder, path)):
         return send_from_directory(app.static_folder, path)
     else:
