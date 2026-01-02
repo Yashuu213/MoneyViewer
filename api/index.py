@@ -1,36 +1,37 @@
 import os
-from flask import Flask, send_from_directory, request, jsonify
+from flask import Flask, request, jsonify, send_from_directory
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
 
-# Use absolute path for static folder to avoid issues with relative paths
-basedir = os.path.abspath(os.path.dirname(__file__))
+# Vercel setup
+# Go up one level from api/ directory to find 'dist'
+basedir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 dist_folder = os.path.join(basedir, 'dist')
 app = Flask(__name__, static_folder=dist_folder)
 
 # Configuration
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-secret-key-change-this')
-# Use SQLite for local development, Render will provide a DATABASE_URL for Postgres
-# Use SQLite for local development, Render will provide a DATABASE_URL for Postgres
+
+# Database Configuration
 database_url = os.environ.get('DATABASE_URL')
 
 if not database_url:
-    # Local development: Use absolute path to instance/site.db
-    db_path = os.path.join(basedir, 'instance', 'site.db')
-    # Ensure instance directory exists
-    os.makedirs(os.path.join(basedir, 'instance'), exist_ok=True)
+    # Fallback to SQLite in /tmp for Vercel/serverless environments (Non-persistent)
+    # Or local development
+    db_path = os.path.join('/tmp', 'site.db') 
     database_url = f'sqlite:///{db_path}'
 
 if database_url.startswith("postgres://"):
     database_url = database_url.replace("postgres://", "postgresql://", 1)
+
 app.config['SQLALCHEMY_DATABASE_URI'] = database_url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
 login_manager = LoginManager(app)
-login_manager.login_view = 'serve' # Redirect to frontend for handling
+login_manager.login_view = 'login' # Not actually used for JSON API but required by Flask-Login
 
 # --- Models ---
 class User(UserMixin, db.Model):
@@ -64,9 +65,18 @@ def load_user(user_id):
 
 # --- API Routes ---
 
-# Auth Routes
+@app.route('/api/init_db')
+def init_db():
+    db.create_all()
+    return jsonify({"message": "Database initialized"})
+
 @app.route('/api/register', methods=['POST'])
 def register():
+    # Ensure tables exist (quick fix for serverless sqlite ephemeral nature)
+    # real production apps should use migration scripts
+    if 'sqlite' in app.config['SQLALCHEMY_DATABASE_URI']:
+        db.create_all()
+        
     data = request.json
     username = data.get('username')
     password = data.get('password')
@@ -86,6 +96,9 @@ def register():
 
 @app.route('/api/login', methods=['POST'])
 def login():
+    if 'sqlite' in app.config['SQLALCHEMY_DATABASE_URI']:
+        db.create_all()
+        
     data = request.json
     username = data.get('username')
     password = data.get('password')
@@ -110,7 +123,6 @@ def check_auth():
         return jsonify({'isAuthenticated': True, 'username': current_user.username})
     return jsonify({'isAuthenticated': False})
 
-# Transaction Routes
 @app.route('/api/transactions', methods=['GET', 'POST'])
 @login_required
 def handle_transactions():
@@ -150,7 +162,6 @@ def delete_transaction(id):
     db.session.commit()
     return jsonify({'message': 'Transaction deleted'})
 
-# Debt Routes
 @app.route('/api/debts', methods=['GET', 'POST'])
 @login_required
 def handle_debts():
@@ -188,36 +199,10 @@ def delete_debt(id):
     
     db.session.delete(debt)
     db.session.commit()
-    db.session.delete(debt)
-    db.session.commit()
     return jsonify({'message': 'Debt deleted'})
 
-# --- Debug Route ---
-@app.route('/debug-files')
-def debug_files():
-    output = []
-    output.append(f"Current Working Directory: {os.getcwd()}")
-    output.append(f"Base Directory: {basedir}")
-    output.append(f"Static Folder: {app.static_folder}")
-    
-    output.append("\n--- Root Directory Listing ---")
-    try:
-        output.append(str(os.listdir(os.getcwd())))
-    except Exception as e:
-        output.append(f"Error listing root: {e}")
-        
-    output.append("\n--- Static Folder Listing ---")
-    try:
-        if os.path.exists(app.static_folder):
-            output.append(str(os.listdir(app.static_folder)))
-        else:
-            output.append("Static folder does NOT exist")
-    except Exception as e:
-        output.append(f"Error listing static folder: {e}")
-        
-    return "<pre>" + "\n".join(output) + "</pre>"
 
-# --- Serve Frontend ---
+# --- Serve Frontend (Fallback for Local Dev) ---
 @app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')
 def serve(path):
@@ -228,8 +213,4 @@ def serve(path):
     else:
         return send_from_directory(app.static_folder, 'index.html')
 
-if __name__ == '__main__':
-    with app.app_context():
-        db.create_all()
-    print("Starting Flask server at http://localhost:5000")
-    app.run(use_reloader=False, port=5000, threaded=True)
+# No app.run() needed for Vercel
