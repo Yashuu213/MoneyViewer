@@ -15,7 +15,8 @@ app = Flask(__name__, static_folder=dist_folder)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-secret-key-change-this')
 
 # Database Configuration
-database_url = os.environ.get('DATABASE_URL')
+# Vercel Postgres automatically uses POSTGRES_URL, or DATABASE_URL
+database_url = os.environ.get('POSTGRES_URL') or os.environ.get('DATABASE_URL')
 
 if not database_url:
     # Fallback to SQLite in /tmp for Vercel/serverless environments (Non-persistent)
