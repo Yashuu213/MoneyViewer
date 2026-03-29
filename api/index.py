@@ -84,8 +84,8 @@ def reset_db():
 @app.route('/api/register', methods=['POST'])
 def register():
     try:
-        if 'sqlite' in app.config['SQLALCHEMY_DATABASE_URI']:
-            db.create_all()
+        # Ensure tables exist (quick fix for serverless environments)
+        db.create_all()
             
         data = request.json
         username = data.get('username')
@@ -109,7 +109,7 @@ def register():
 
 @app.route('/api/login', methods=['POST'])
 def login():
-    if 'sqlite' in app.config['SQLALCHEMY_DATABASE_URI']:
+        # Ensure tables exist (quick fix for serverless environments)
         db.create_all()
         
     data = request.json
