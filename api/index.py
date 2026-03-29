@@ -109,20 +109,24 @@ def register():
 
 @app.route('/api/login', methods=['POST'])
 def login():
+    try:
         # Ensure tables exist (quick fix for serverless environments)
         db.create_all()
         
-    data = request.json
-    username = data.get('username')
-    password = data.get('password')
+        data = request.json
+        username = data.get('username')
+        password = data.get('password')
     
-    user = User.query.filter_by(username=username).first()
-    
-    if user and check_password_hash(user.password_hash, password):
-        login_user(user)
-        return jsonify({'message': 'Login successful', 'username': user.username})
-    
-    return jsonify({'error': 'Invalid credentials'}), 401
+        user = User.query.filter_by(username=username).first()
+        
+        if user and check_password_hash(user.password_hash, password):
+            login_user(user)
+            return jsonify({'message': 'Login successful', 'username': user.username})
+        
+        return jsonify({'error': 'Invalid credentials'}), 401
+    except Exception as e:
+        print(f"Error during login: {str(e)}")
+        return jsonify({'error': f"Internal Server Error: {str(e)}"}), 500
 
 @app.route('/api/logout', methods=['POST'])
 @login_required
