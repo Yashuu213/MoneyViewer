@@ -12,8 +12,8 @@ const Layout = ({ children }) => {
     return (
         <div className="min-h-screen bg-gray-50 flex flex-col">
             {/* Header */}
-            <header className="bg-white shadow-sm sticky top-0 z-10">
-                <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <header className="bg-white/80 backdrop-blur-md shadow-sm sticky top-0 z-[100] border-b border-gray-100">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
                     <div className="flex items-center gap-2">
                         <div className="bg-blue-600 p-2 rounded-lg">
                             <Wallet className="w-6 h-6 text-white" />
@@ -49,7 +49,7 @@ const Layout = ({ children }) => {
             </header>
 
             {/* Main Content */}
-            <main className="flex-1 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+            <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10 w-full mb-20 sm:mb-0">
                 {children}
             </main>
 

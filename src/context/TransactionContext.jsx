@@ -6,6 +6,7 @@ export const TransactionProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [transactions, setTransactions] = useState([]);
     const [debts, setDebts] = useState([]);
+    const [vpa, setVpa] = useState(localStorage.getItem('userVpa') || '');
     const [loading, setLoading] = useState(true);
 
     // Check auth status on load
@@ -191,6 +192,11 @@ export const TransactionProvider = ({ children }) => {
             debts,
             addDebt,
             deleteDebt,
+            vpa,
+            updateVpa: (newVpa) => {
+                setVpa(newVpa);
+                localStorage.setItem('userVpa', newVpa);
+            },
             getPersonBalance,
             getPeopleBalances
         }}>
