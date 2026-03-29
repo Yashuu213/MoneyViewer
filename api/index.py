@@ -74,6 +74,13 @@ def init_db():
     db.create_all()
     return jsonify({"message": "Database initialized"})
 
+@app.route('/api/reset_db', methods=['POST'])
+def reset_db():
+    # Dangerous: clears everything. Use with caution.
+    db.drop_all()
+    db.create_all()
+    return jsonify({"message": "All data cleared. Database reset successfully."})
+
 @app.route('/api/register', methods=['POST'])
 def register():
     # Ensure tables exist (quick fix for serverless sqlite ephemeral nature)
