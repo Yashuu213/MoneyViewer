@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext, useRef } from 'react';
-import { Mic, Sparkles, Send, X, Check, Loader2, ArrowRight } from 'lucide-react';
+import { Mic, MicOff, Sparkles, Send, X, Check, Loader2, ArrowRight } from 'lucide-react';
 import { TransactionContext } from '../context/TransactionContext';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -11,20 +11,48 @@ const MagicAIInput = () => {
     const [parsedItems, setParsedItems] = useState([]);
     const [showPreview, setShowPreview] = useState(false);
     const recognitionRef = useRef(null);
+    const silenceTimerRef = useRef(null);
+    const isListeningRef = useRef(isListening);
+
+    useEffect(() => {
+        isListeningRef.current = isListening;
+    }, [isListening]);
 
     useEffect(() => {
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         if (SpeechRecognition) {
             recognitionRef.current = new SpeechRecognition();
-            recognitionRef.current.continuous = false;
-            recognitionRef.current.interimResults = false;
-            recognitionRef.current.lang = 'en-US'; // Works surprisingly well for Hinglish too
+            recognitionRef.current.continuous = true; // Keep listening for punctuation
+            recognitionRef.current.interimResults = true; // Show text as you speak
+            recognitionRef.current.lang = 'en-IN'; // Optimized for Indian accents and Romanized Hinglish
 
             recognitionRef.current.onresult = (event) => {
-                const transcript = event.results[0][0].transcript;
-                setText(transcript);
-                setIsListening(false);
-                handleParse(transcript);
+                // Clear existing silence timer
+                if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
+
+                let interimTranscript = '';
+                let finalTranscript = '';
+
+                for (let i = event.resultIndex; i < event.results.length; ++i) {
+                    if (event.results[i].isFinal) {
+                        finalTranscript += event.results[i][0].transcript;
+                    } else {
+                        interimTranscript += event.results[i][0].transcript;
+                    }
+                }
+
+                const currentText = finalTranscript || interimTranscript;
+                if (currentText) {
+                    setText(currentText);
+
+                    // Start silence timer to auto-submit
+                    silenceTimerRef.current = setTimeout(() => {
+                        if (isListeningRef.current) {
+                            recognitionRef.current.stop();
+                            handleParse(currentText);
+                        }
+                    }, 1800); // 1.8 seconds of silence to auto-parse
+                }
             };
 
             recognitionRef.current.onerror = (event) => {
@@ -76,10 +104,10 @@ const MagicAIInput = () => {
     };
 
     return (
-        <div className="w-full relative">
+        <div className={`w-full relative transition-all duration-300 rounded-2xl border ${isListening ? 'border-red-400 bg-red-50/10 shadow-[0_0_15px_rgba(239,68,68,0.2)]' : 'border-slate-100 dark:border-slate-800'}`}>
             <div className="flex items-center gap-3 px-4 py-1">
                 <div className="flex-shrink-0">
-                    <Sparkles size={16} className={isLoading ? "animate-pulse text-indigo-500" : "text-slate-400"} />
+                    <Sparkles size={16} className={isLoading ? "animate-pulse text-indigo-500" : isListening ? "text-red-500" : "text-slate-400"} />
                 </div>
 
                 <input
@@ -87,17 +115,17 @@ const MagicAIInput = () => {
                     value={text}
                     onChange={(e) => setText(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && handleParse()}
-                    placeholder="Type to log: ......."
+                    placeholder={isListening ? "Listening... Say something!" : "Type to log: ......."}
                     className="flex-1 bg-transparent border-none outline-none py-3 text-sm font-medium text-slate-700 dark:text-slate-200 placeholder:text-slate-400"
                 />
 
                 <div className="flex items-center gap-1.5 border-l border-slate-100 dark:border-slate-800 pl-3">
                     <button
                         onClick={isListening ? () => recognitionRef.current.stop() : startListening}
-                        className={`p-2 rounded-lg transition-colors ${isListening ? 'bg-red-50 text-red-500 animate-pulse' : 'text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800'}`}
-                        title="Voice Input"
+                        className={`p-2 rounded-lg transition-colors ${isListening ? 'bg-red-50 text-red-500 animate-pulse scale-110' : 'text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800'}`}
+                        title={isListening ? "Listening..." : "Voice Input"}
                     >
-                        <Mic size={16} />
+                        {isListening ? <MicOff size={16} /> : <Mic size={16} />}
                     </button>
 
                     <button

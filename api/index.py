@@ -309,11 +309,26 @@ def ai_parse():
     custom_rules = TrainingData.query.filter_by(user_id=current_user.id).all()
     rules_map = {r.keyword: (r.target_type, r.target_category) for r in custom_rules}
     
-    # Smart segmentation: only split on explicit multi-transaction delimiters
-    # DO NOT split on 'ke', 'liye' etc. which are part of Hinglish sentence structure
-    segments = re.split(r'\s+(?:and|aur|plus)\s+|\s*,\s*', text)
-    if len(segments) == 1 and segments[0] == text:
-        segments = [text]
+    # 1. Split by explicit delimiters
+    initial_segments = re.split(r'\s+(?:and|aur|plus)\s+|\s*,\s*', text)
+    segments = []
+
+    # 2. Implicit Sub-segmentation (Split by multiple numbers)
+    # e.g., "100 pizza 200 burger" -> ["100 pizza", "200 burger"]
+    for s in initial_segments:
+        nums = list(re.finditer(r'(?<![a-zA-Z])\d+(?![a-zA-Z])', s))
+        if len(nums) > 1:
+            last_pos = 0
+            for i in range(1, len(nums)):
+                # Logic: If we see a number like "2024" after an amount, don't split there
+                if nums[i].group().startswith('20') and len(nums[i].group()) == 4:
+                    continue
+                split_pos = nums[i].start()
+                segments.append(s[last_pos:split_pos].strip())
+                last_pos = split_pos
+            segments.append(s[last_pos:].strip())
+        else:
+            segments.append(s.strip())
 
     results = []
     
@@ -342,7 +357,11 @@ def ai_parse():
         debt_type = None
         target_category = None
         
-        desc_raw = seg.replace(str(int(amount)), '').strip()
+        # Clean noise words like 'rs', 'rupee', 'rupees'
+        clean_seg = re.sub(r'\b(rs|rupee|rupees)\b', '', seg).strip()
+        desc_raw = clean_seg.replace(str(int(amount)), '').strip()
+        desc_raw = re.sub(r'\s+', ' ', desc_raw).strip()
+
         
         # 1. CORE HINGLISH PATTERNS (Highest Priority)
         # "ne ... diya/diye" -> Someone gave me money (amount can be in between)
