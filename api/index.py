@@ -305,6 +305,38 @@ def ai_parse():
     data = request.json
     text = data.get('text', '').lower()
     
+    # Text Normalization for Numbers (Hinglish/English words to digits)
+    number_replacements = {
+        r'\bone hundred\b': '100', r'\bhundred\b': '100', r'\bek so\b': '100', r'\bek sau\b': '100', r'\bsau\b': '100', 
+        r'\bso\b': '100', # Capturing the hinglish translation of 100 by speech to text
+        r'\bdo so\b': '200', r'\bdo sau\b': '200', r'\btwo hundred\b': '200',
+        r'\bteen so\b': '300', r'\bteen sau\b': '300', r'\bthree hundred\b': '300',
+        r'\bchar so\b': '400', r'\bchar sau\b': '400', r'\bfour hundred\b': '400',
+        r'\bpanch so\b': '500', r'\bpanch sau\b': '500', r'\bfive hundred\b': '500',
+        r'\bche so\b': '600', r'\bche sau\b': '600', r'\bsix hundred\b': '600',
+        r'\bsaat so\b': '700', r'\bsaat sau\b': '700', r'\bseven hundred\b': '700',
+        r'\baath so\b': '800', r'\baath sau\b': '800', r'\beight hundred\b': '800',
+        r'\bnau so\b': '900', r'\bnau sau\b': '900', r'\bnine hundred\b': '900',
+        r'\bek hazar\b': '1000', r'\bhazar\b': '1000', r'\bone thousand\b': '1000', r'\bthousand\b': '1000',
+        r'\bten\b': '10', r'\bdas\b': '10',
+        r'\btwenty\b': '20', r'\bbees\b': '20',
+        r'\bthirty\b': '30', r'\btees\b': '30',
+        r'\bforty\b': '40', r'\bchalis\b': '40',
+        r'\bfifty\b': '50', r'\bpachas\b': '50',
+        r'\bsixty\b': '60', r'\bsaath\b': '60',
+        r'\bseventy\b': '70', r'\bsattar\b': '70',
+        r'\beighty\b': '80', r'\bassi\b': '80',
+        r'\bninety\b': '90', r'\bnabbe\b': '90',
+        r'\bone\b': '1', r'\bek\b': '1',
+        r'\btwo\b': '2', r'\bdo\b': '2',
+        r'\bthree\b': '3', r'\bteen\b': '3',
+        r'\bfour\b': '4', r'\bchar\b': '4',
+        r'\bfive\b': '5', r'\bpanch\b': '5',
+    }
+    
+    for pattern, digit in number_replacements.items():
+        text = re.sub(pattern, digit, text)
+    
     # Load user's custom training data
     custom_rules = TrainingData.query.filter_by(user_id=current_user.id).all()
     rules_map = {r.keyword: (r.target_type, r.target_category) for r in custom_rules}
