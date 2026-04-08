@@ -37,7 +37,7 @@ const Dashboard = () => {
                         <div className="flex-shrink-0">
                             <div className="flex items-center gap-2 text-indigo-600 dark:text-indigo-400 font-bold uppercase tracking-[0.2em] text-[9px] mb-3">
                                 <Wallet className="w-3.5 h-3.5" />
-                                Net Liquidity
+                                Current Balance
                             </div>
                             <div className="flex items-baseline gap-2">
                                 <p className="text-4xl md:text-5xl font-black tracking-tight text-slate-900 dark:text-white font-mono">₹{balance.toLocaleString('en-IN')}</p>
@@ -56,11 +56,11 @@ const Dashboard = () => {
                             <div className="flex-1 min-w-[140px] p-5 rounded-3xl bg-emerald-50/60 dark:bg-emerald-500/10 border border-emerald-100/50 dark:border-emerald-500/20 group hover:shadow-lg hover:shadow-emerald-500/5 transition-all duration-300">
                                 <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400 font-bold uppercase tracking-widest text-[8px] mb-3">
                                     <TrendingUp className="w-3 h-3" />
-                                    Incoming
+                                    Total In
                                 </div>
                                 <div className="space-y-1">
                                     <p className="text-xl font-black text-emerald-600 dark:text-emerald-400 tracking-tight">₹{income.toLocaleString('en-IN')}</p>
-                                    <p className="text-[8px] font-bold text-emerald-600/60 dark:text-emerald-400/60 transition-opacity">CASH INFLOW</p>
+                                    <p className="text-[8px] font-bold text-emerald-600/60 dark:text-emerald-400/60 transition-opacity">ALL DEPOSITS</p>
                                 </div>
                             </div>
 
@@ -68,11 +68,11 @@ const Dashboard = () => {
                             <div className="flex-1 min-w-[140px] p-5 rounded-3xl bg-rose-50/60 dark:bg-rose-500/10 border border-rose-100/50 dark:border-rose-500/20 group hover:shadow-lg hover:shadow-rose-500/5 transition-all duration-300">
                                 <div className="flex items-center gap-2 text-rose-600 dark:text-rose-400 font-bold uppercase tracking-widest text-[8px] mb-3">
                                     <TrendingDown className="w-3 h-3" />
-                                    Outgoing
+                                    Total Out
                                 </div>
                                 <div className="space-y-1">
                                     <p className="text-xl font-black text-rose-600 dark:text-rose-400 tracking-tight">₹{expense.toLocaleString('en-IN')}</p>
-                                    <p className="text-[8px] font-bold text-rose-600/60 dark:text-rose-400/60 transition-opacity">CASH OUTFLOW</p>
+                                    <p className="text-[8px] font-bold text-rose-600/60 dark:text-rose-400/60 transition-opacity">EXPENSES & LENT</p>
                                 </div>
                             </div>
                         </div>
