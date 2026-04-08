@@ -23,6 +23,11 @@ const Dashboard = () => {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
             {/* Left Section: Command & History */}
             <div className="lg:col-span-8 space-y-6">
+                {/* Command Bar Section - PRIMARY ACCESS */}
+                <div className="pro-card p-1 shadow-sm focus-within:ring-2 focus-within:ring-indigo-500/20 transition-all">
+                    <MagicAIInput />
+                </div>
+
                 {/* Master Balance Hero - Upgraded Precision Layout */}
                 <div className="pro-card bg-white dark:bg-slate-900 border-indigo-100 dark:border-slate-800 p-6 md:p-8 relative overflow-hidden shadow-sm border-l-4 border-l-indigo-600">
                     <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/5 dark:bg-indigo-500/10 rounded-full -translate-y-32 translate-x-32 blur-3xl opacity-50" />
@@ -72,11 +77,6 @@ const Dashboard = () => {
                             </div>
                         </div>
                     </div>
-                </div>
-
-                {/* Command Bar Section */}
-                <div className="pro-card p-1 shadow-sm focus-within:ring-2 focus-within:ring-indigo-500/20 transition-all">
-                    <MagicAIInput />
                 </div>
 
                 {/* Legacy Form (Optional/Hidden in Pro) */}
