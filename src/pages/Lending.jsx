@@ -214,7 +214,7 @@ const Lending = () => {
                     <h3 className="text-emerald-400 font-bold uppercase tracking-widest text-[9px] mb-6">Aggregate Receivable</h3>
                     <div className="flex items-baseline gap-2">
                         <span className="text-4xl font-bold tracking-tight">₹{peopleBalances.filter(p => p.balance > 0).reduce((sum, p) => sum + p.balance, 0).toLocaleString('en-IN')}</span>
-                        <span className="text-emerald-500/60 text-xs font-bold font-mono">DR</span>
+                        <span className="text-emerald-500/60 text-[10px] font-bold uppercase tracking-widest">Receivable</span>
                     </div>
                 </div>
                 
@@ -223,7 +223,7 @@ const Lending = () => {
                     <h3 className="text-rose-500 font-bold uppercase tracking-widest text-[9px] mb-6">Total Liabilities</h3>
                     <div className="flex items-baseline gap-2">
                         <span className="text-4xl font-bold tracking-tight text-slate-900 dark:text-white">₹{Math.abs(peopleBalances.filter(p => p.balance < 0).reduce((sum, p) => sum + p.balance, 0)).toLocaleString('en-IN')}</span>
-                        <span className="text-rose-500/60 text-xs font-bold font-mono">CR</span>
+                        <span className="text-rose-500/60 text-[10px] font-bold uppercase tracking-widest">Payable</span>
                     </div>
                 </div>
             </div>

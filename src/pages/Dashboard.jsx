@@ -80,24 +80,12 @@ const Dashboard = () => {
                 </div>
 
                 {/* Legacy Form (Optional/Hidden in Pro) */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="pro-card p-6 pro-card-hover">
-                        <TransactionForm />
+                <div className="pro-card p-6 pro-card-hover min-h-[340px]">
+                    <div className="flex items-center gap-2 mb-6">
+                        <Sparkles size={16} className="text-indigo-500" />
+                        <h2 className="text-xs font-bold uppercase tracking-widest text-slate-500">Manual Registry Entry</h2>
                     </div>
-                    
-                    {/* Placeholder for Quick Stats or mini-chart */}
-                    <div className="pro-card p-6 flex flex-col justify-between">
-                        <div>
-                            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-1">Weekly Pulse</h3>
-                            <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
-                                You've logged <span className="text-indigo-600 font-bold">{transactions.length}</span> transactions this week. Reach for the "Command Bar" to add more.
-                            </p>
-                        </div>
-                        <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800 flex justify-between items-center text-xs">
-                            <span className="text-slate-400">Total processed</span>
-                            <span className="font-mono text-indigo-500">#{transactions.length.toString().padStart(4, '0')}</span>
-                        </div>
-                    </div>
+                    <TransactionForm />
                 </div>
 
                 {/* Transaction List */}
@@ -114,6 +102,21 @@ const Dashboard = () => {
 
             {/* Right Section: Intelligence & Stats */}
             <div className="lg:col-span-4 space-y-6">
+                {/* Weekly Pulse Widget - Relocated for better hierarchy */}
+                <div className="pro-card p-6 bg-white dark:bg-slate-900 border-indigo-50/50 dark:border-slate-800 shadow-sm relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 w-24 h-24 bg-indigo-500/5 rounded-full -translate-y-12 translate-x-12 blur-2xl group-hover:bg-indigo-500/10 transition-colors" />
+                    <div>
+                        <h3 className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-4">Weekly Pulse</h3>
+                        <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed font-bold">
+                            You've logged <span className="text-indigo-600 font-black">{transactions.length}</span> transactions this week. Reach for the "Command Bar" to add more.
+                        </p>
+                    </div>
+                    <div className="mt-6 pt-6 border-t border-slate-50 dark:border-slate-800 flex justify-between items-center text-[10px] font-bold">
+                        <span className="text-slate-400 uppercase tracking-tighter">Total processed</span>
+                        <span className="font-mono text-indigo-500">#{transactions.length.toString().padStart(4, '0')}</span>
+                    </div>
+                </div>
+
                 {/* Pro Tips Side Card */}
                 <div className="pro-card p-6 bg-slate-50 dark:bg-slate-900/50 border-dashed border-slate-200 dark:border-slate-800">
                     <h4 className="text-[10px] font-bold text-slate-400 dark:text-indigo-400/70 uppercase tracking-widest mb-4">Pro Tips</h4>
