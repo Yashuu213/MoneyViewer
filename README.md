@@ -1,6 +1,6 @@
 <div align="center">
   
-  <h1>🚀 FinnTune: The Next-Gen Financial AI Brain</h1>
+  <h1>🚀 Hisaab.AI: The Next-Gen Financial AI Brain</h1>
   <p><strong>Voice-Activated • Premium Glassmorphic UI • Intelligent Expense Splitting • Cloud Synced</strong></p>
 
   <p>
@@ -10,26 +10,26 @@
   </p>
 
   <p>
-    <a href="https://github.com/Yashuu213/FinnTune/releases/latest"><strong>📲 DOWNLOAD THE APK HERE</strong></a>
+    <a href="https://github.com/Yashuu213/Hisaab.AI/releases/latest"><strong>📲 DOWNLOAD THE APK HERE</strong></a>
   </p>
 
 </div>
 
 ---
 
-# 🌌 What is FinnTune?
+# 🌌 What is Hisaab.AI?
 
-**FinnTune** is not just another expense tracker. It is a highly sophisticated, AI-driven personal finance assistant wrapped in an ultra-premium, dark-mode focused glassmorphic UI. 
+**Hisaab.AI** is not just another expense tracker. It is a highly sophisticated, AI-driven personal finance assistant wrapped in an ultra-premium, dark-mode focused glassmorphic UI. 
 
-Built with the modern user in mind, FinnTune allows you to log transactions, split bills, and track your overall net worth entirely **hands-free using Hinglish Voice Commands**. Just speak to **"Bro-Bot"**, our proprietary NLP engine, and it will handle the rest.
+Built with the modern user in mind, Hisaab.AI allows you to log transactions, split bills, and track your overall net worth entirely **hands-free using Hinglish Voice Commands**. Just speak to **"Bro-Bot"**, our proprietary NLP engine, and it will handle the rest.
 
 ---
 
 ## 📲 Download the Android App (APK)
 
-Experience the true power of FinnTune as a native mobile application. With lightning-fast performance and seamless voice integration, the Android app is the ultimate way to manage your money on the go.
+Experience the true power of Hisaab.AI as a native mobile application. With lightning-fast performance and seamless voice integration, the Android app is the ultimate way to manage your money on the go.
 
-**👉 [Download the Latest Release (FinnTune v1.0.0 APK)](https://github.com/Yashuu213/FinnTune/releases/latest)**
+**👉 [Download the Latest Release (Hisaab.AI v1.0.0 APK)](https://github.com/Yashuu213/Hisaab.AI/releases/latest)**
 
 > **Installation Note**: You may need to bypass Google Play Protect since this is an indie developer release. Just click "More Details" -> "Install Anyway".
 
@@ -81,7 +81,7 @@ Want to see the magic under the hood?
 
 ### 1. Clone & Setup
 ```bash
-git clone https://github.com/Yashuu213/FinnTune
+git clone https://github.com/Yashuu213/Hisaab.AI
 cd upi
 ```
 

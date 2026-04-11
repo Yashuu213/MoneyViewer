@@ -21,7 +21,7 @@ const Layout = ({ children }) => {
                                 <Wallet className="w-5 h-5 text-white" />
                             </div>
                             <span className="text-lg font-bold tracking-tight text-slate-900 dark:text-white">
-                                Finn<span className="text-indigo-600">Tune</span>
+                                Hisaab<span className="text-indigo-600">.AI</span>
                             </span>
                         </Link>
 

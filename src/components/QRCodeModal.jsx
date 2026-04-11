@@ -9,7 +9,7 @@ const QRCodeModal = ({ isOpen, onClose, amount, name, vpa, description }) => {
     const [copied, setCopied] = React.useState(false);
 
     // Official UPI URI format: upi://pay?pa=address&pn=name&am=amount&tn=note
-    const upiLink = `upi://pay?pa=${vpa}&pn=${encodeURIComponent(name)}&am=${amount}&tn=${encodeURIComponent(description || 'Split via FinnTune')}`;
+    const upiLink = `upi://pay?pa=${vpa}&pn=${encodeURIComponent(name)}&am=${amount}&tn=${encodeURIComponent(description || 'Split via Hisaab.AI')}`;
 
     const copyToClipboard = () => {
         navigator.clipboard.writeText(upiLink);
@@ -87,7 +87,7 @@ const QRCodeModal = ({ isOpen, onClose, amount, name, vpa, description }) => {
 
                         <div className="mt-8 pt-6 border-t border-slate-100 dark:border-slate-800">
                             <p className="text-[9px] text-slate-400 font-medium leading-relaxed uppercase tracking-wider">
-                                FinnTune secured Settlement • Automated Ledger Sync
+                                Hisaab.AI secured Settlement • Automated Ledger Sync
                             </p>
                         </div>
                     </div>

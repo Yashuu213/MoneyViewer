@@ -50,16 +50,16 @@ export const TransactionProvider = ({ children }) => {
         }
     };
 
-    const login = async (username, password) => {
+    const login = async (email, password) => {
         try {
             const res = await fetch('/api/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ username, password })
+                body: JSON.stringify({ email, password })
             });
             const data = await res.json();
             if (res.ok) {
-                setUser({ username: data.username });
+                setUser({ username: data.username, email: data.email });
                 return { success: true };
             }
             return { success: false, error: data.error || 'Login failed' };
@@ -68,12 +68,12 @@ export const TransactionProvider = ({ children }) => {
         }
     };
 
-    const register = async (username, password) => {
+    const register = async (username, email, password, otp) => {
         try {
             const res = await fetch('/api/register', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ username, password })
+                body: JSON.stringify({ username, email, password, otp })
             });
             const data = await res.json();
             if (res.ok) {
@@ -88,6 +88,34 @@ export const TransactionProvider = ({ children }) => {
     const logout = async () => {
         await fetch('/api/logout', { method: 'POST' });
         setUser(null);
+    };
+
+    const sendOtp = async (email, type) => {
+        try {
+            const res = await fetch('/api/send-otp', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, type })
+            });
+            const data = await res.json();
+            return { success: res.ok, error: data.error };
+        } catch (err) {
+            return { success: false, error: 'Connection error' };
+        }
+    };
+
+    const resetPassword = async (email, otp, newPassword) => {
+        try {
+            const res = await fetch('/api/reset-password', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, otp, new_password: newPassword })
+            });
+            const data = await res.json();
+            return { success: res.ok, error: data.error };
+        } catch (err) {
+            return { success: false, error: 'Connection error' };
+        }
     };
 
     const fetchTransactions = async () => {
@@ -242,6 +270,8 @@ export const TransactionProvider = ({ children }) => {
             login,
             register,
             logout,
+            sendOtp,
+            resetPassword,
             transactions,
             addTransaction,
             deleteTransaction,

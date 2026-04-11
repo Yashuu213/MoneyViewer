@@ -1,20 +1,25 @@
 import React, { useState, useContext } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { TransactionContext } from '../context/TransactionContext';
-import { Wallet, UserPlus, Loader2 } from 'lucide-react';
+import { Wallet, UserPlus, Loader2, Mail, KeyRound } from 'lucide-react';
 
 const Register = () => {
     const [username, setUsername] = useState('');
+    const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
+    const [otp, setOtp] = useState('');
+    const [otpSent, setOtpSent] = useState(false);
     const [error, setError] = useState('');
+    const [message, setMessage] = useState('');
     const [isLoading, setIsLoading] = useState(false);
-    const { register } = useContext(TransactionContext);
+    const { register, sendOtp } = useContext(TransactionContext);
     const navigate = useNavigate();
 
-    const handleSubmit = async (e) => {
+    const handleSendOtp = async (e) => {
         e.preventDefault();
         setError('');
+        setMessage('');
 
         if (password !== confirmPassword) {
             setError("Passwords don't match");
@@ -25,9 +30,34 @@ const Register = () => {
             setError("Password must be at least 6 characters");
             return;
         }
+        
+        if (!email.includes('@')) {
+            setError("Please enter a valid email");
+            return;
+        }
 
         setIsLoading(true);
-        const result = await register(username, password);
+        const result = await sendOtp(email, 'register');
+        if (result.success) {
+            setOtpSent(true);
+            setMessage(`OTP sent to ${email}. Please check your inbox.`);
+        } else {
+            setError(result.error || 'Failed to send OTP');
+        }
+        setIsLoading(false);
+    };
+
+    const handleVerifyAndRegister = async (e) => {
+        e.preventDefault();
+        setError('');
+        
+        if (!otp || otp.length !== 6) {
+            setError("Please enter a valid 6-digit OTP");
+            return;
+        }
+
+        setIsLoading(true);
+        const result = await register(username, email, password, otp);
         if (result.success) {
             navigate('/login');
         } else {
@@ -47,55 +77,96 @@ const Register = () => {
                     <p className="text-gray-400 font-medium mt-1">Start tracking your money today</p>
                 </div>
                 
-                {error && <div className="bg-rose-50 text-rose-600 p-4 rounded-2xl mb-6 text-sm font-bold border border-rose-100 animate-in slide-in-from-top-2 text-center">{error}</div>}
+                {error && <div className="bg-rose-50 text-rose-600 p-4 rounded-2xl mb-6 text-sm font-bold border border-rose-100 text-center">{error}</div>}
+                {message && <div className="bg-emerald-50 text-emerald-600 p-4 rounded-2xl mb-6 text-sm font-bold border border-emerald-100 text-center">{message}</div>}
                 
-                <form onSubmit={handleSubmit} className="space-y-4">
-                    <div className="space-y-2">
-                        <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">Username</label>
-                        <input
-                            type="text"
-                            value={username}
-                            onChange={(e) => setUsername(e.target.value)}
-                            className="w-full p-4 bg-gray-50 border-2 border-transparent rounded-2xl focus:bg-white focus:border-blue-500 outline-none transition-all font-medium text-gray-900"
-                            placeholder="Choose a username"
-                            required
-                        />
-                    </div>
-                    <div className="space-y-2">
-                        <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">Password</label>
-                        <input
-                            type="password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            className="w-full p-4 bg-gray-50 border-2 border-transparent rounded-2xl focus:bg-white focus:border-blue-500 outline-none transition-all font-medium text-gray-900"
-                            placeholder="Create a password"
-                            required
-                        />
-                    </div>
-                    <div className="space-y-2">
-                        <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">Confirm Password</label>
-                        <input
-                            type="password"
-                            value={confirmPassword}
-                            onChange={(e) => setConfirmPassword(e.target.value)}
-                            className="w-full p-4 bg-gray-50 border-2 border-transparent rounded-2xl focus:bg-white focus:border-blue-500 outline-none transition-all font-medium text-gray-900"
-                            placeholder="Repeat password"
-                            required
-                        />
-                    </div>
-                    <button
-                        type="submit"
-                        disabled={isLoading}
-                        className="w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-4 rounded-2xl transition-all shadow-lg shadow-blue-500/25 active:scale-[0.98] flex items-center justify-center gap-2 group mt-4"
-                    >
-                        {isLoading ? (
-                            <Loader2 className="w-5 h-5 animate-spin" />
-                        ) : (
-                            <UserPlus className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                        )}
-                        {isLoading ? 'Creating...' : 'Create Account'}
-                    </button>
-                </form>
+                {!otpSent ? (
+                    <form onSubmit={handleSendOtp} className="space-y-4 animate-in fade-in">
+                        <div className="space-y-2">
+                            <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">Username</label>
+                            <input
+                                type="text"
+                                value={username}
+                                onChange={(e) => setUsername(e.target.value)}
+                                className="w-full p-4 bg-gray-50 border-2 border-transparent rounded-2xl focus:bg-white focus:border-blue-500 outline-none transition-all font-medium text-gray-900"
+                                placeholder="Choose a username"
+                                required
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">Email</label>
+                            <input
+                                type="email"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                className="w-full p-4 bg-gray-50 border-2 border-transparent rounded-2xl focus:bg-white focus:border-blue-500 outline-none transition-all font-medium text-gray-900"
+                                placeholder="you@example.com"
+                                required
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">Password</label>
+                            <input
+                                type="password"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                className="w-full p-4 bg-gray-50 border-2 border-transparent rounded-2xl focus:bg-white focus:border-blue-500 outline-none transition-all font-medium text-gray-900"
+                                placeholder="Create a password (min 6 chars)"
+                                required
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">Confirm Password</label>
+                            <input
+                                type="password"
+                                value={confirmPassword}
+                                onChange={(e) => setConfirmPassword(e.target.value)}
+                                className="w-full p-4 bg-gray-50 border-2 border-transparent rounded-2xl focus:bg-white focus:border-blue-500 outline-none transition-all font-medium text-gray-900"
+                                placeholder="Repeat password"
+                                required
+                            />
+                        </div>
+                        <button
+                            type="submit"
+                            disabled={isLoading}
+                            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-4 rounded-2xl transition-all shadow-lg shadow-blue-500/25 active:scale-[0.98] flex items-center justify-center gap-2 group mt-4"
+                        >
+                            {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Mail className="w-5 h-5 group-hover:translate-x-1 transition-transform" />}
+                            {isLoading ? 'Sending...' : 'Send OTP & Register'}
+                        </button>
+                    </form>
+                ) : (
+                    <form onSubmit={handleVerifyAndRegister} className="space-y-4 animate-in slide-in-from-right-4">
+                        <div className="space-y-2">
+                            <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">Enter OTP Code</label>
+                            <input
+                                type="text"
+                                value={otp}
+                                onChange={(e) => setOtp(e.target.value)}
+                                className="w-full p-4 bg-gray-50 border-2 border-transparent rounded-2xl focus:bg-white focus:border-blue-500 outline-none transition-all font-black text-center text-2xl text-gray-900 tracking-[0.5em]"
+                                placeholder="000000"
+                                maxLength={6}
+                                required
+                            />
+                        </div>
+                        <button
+                            type="submit"
+                            disabled={isLoading}
+                            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-4 rounded-2xl transition-all shadow-lg shadow-blue-500/25 flex items-center justify-center gap-2 mt-4"
+                        >
+                            {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <UserPlus className="w-5 h-5" />}
+                            {isLoading ? 'Verifying...' : 'Verify & Setup Account'}
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => setOtpSent(false)}
+                            className="w-full bg-gray-100 hover:bg-gray-200 text-gray-600 font-bold py-4 rounded-2xl transition-all mt-2"
+                        >
+                            Edit Details or Resend
+                        </button>
+                    </form>
+                )}
+                
                 <p className="mt-8 text-center text-gray-500 font-medium">
                     Already have one? <Link to="/login" className="text-blue-600 font-bold hover:underline">Sign In</Link>
                 </p>

@@ -15,6 +15,6 @@ if __name__ == '__main__':
         print(f"Error during build: {e}")
         print("Starting server anyway...")
 
-    print("\nStarting FinnTune Flask server at http://127.0.0.1:5001")
+    print("\nStarting Hisaab.AI Flask server at http://127.0.0.1:5001")
     # Using port 5001 to match vite.config.js proxy settings
     app.run(port=5001, debug=True)

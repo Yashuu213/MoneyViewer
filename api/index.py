@@ -1,9 +1,16 @@
 import os
+from dotenv import load_dotenv
+load_dotenv()
+
 from flask import Flask, request, jsonify, send_from_directory
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
-from datetime import datetime
+from datetime import datetime, timedelta
+import smtplib
+import random
+from email.mime.text import MIMEText
+from sqlalchemy import text
 
 # Vercel setup
 # Go up one level from api/ directory to find 'dist'
@@ -40,10 +47,17 @@ login_manager.login_view = 'login' # Not actually used for JSON API but required
 # --- Models ---
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(150), unique=True, nullable=False)
+    username = db.Column(db.String(150), nullable=False)
+    email = db.Column(db.String(150), unique=True, nullable=False)
     password_hash = db.Column(db.String(200), nullable=False)
     transactions = db.relationship('Transaction', backref='owner', lazy=True)
     debts = db.relationship('Debt', backref='owner', lazy=True)
+
+class OTPRecord(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String(150), nullable=False)
+    otp = db.Column(db.String(10), nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
 class Transaction(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -88,52 +102,146 @@ def reset_db():
     db.create_all()
     return jsonify({"message": "All data cleared. Database reset successfully."})
 
+# --- OTP and Auth Utilities ---
+def send_email_async(receiver_email, otp, action_type="verification"):
+    sender_email = os.environ.get('EMAIL_ID')
+    app_password = os.environ.get('EMAIL_PASSWORD')
+    
+    if not sender_email or not app_password:
+        print("WARNING: Email Credentials missing in environment.")
+        return False
+        
+    subject = f"Your OTP for {action_type}"
+    body_text = f"Hello, your OTP code is: {otp}\n\nIt is valid for 10 minutes."
+    
+    msg = MIMEText(body_text)
+    msg['Subject'] = subject
+    msg['From'] = f"Secure App <{sender_email}>"
+    msg['To'] = receiver_email
+    
+    try:
+        server = smtplib.SMTP('smtp.gmail.com', 587)
+        server.starttls()
+        server.login(sender_email, app_password)
+        server.send_message(msg)
+        server.quit()
+        return True
+    except Exception as e:
+        print(f"Email failed: {e}")
+        return False
+
+@app.route('/api/send-otp', methods=['POST'])
+def send_otp():
+    try:
+        db.create_all()
+        data = request.json
+        email = data.get('email')
+        action_type = data.get('type', 'register') # 'register' or 'reset'
+        
+        if not email:
+            return jsonify({'error': 'Email is required'}), 400
+            
+        if action_type == 'register' and User.query.filter_by(email=email).first():
+            return jsonify({'error': 'Email already registered'}), 400
+        
+        if action_type == 'reset' and not User.query.filter_by(email=email).first():
+            return jsonify({'error': 'Email not found'}), 404
+            
+        otp_code = str(random.randint(100000, 999999))
+        
+        # Clear old OTPs for this email
+        OTPRecord.query.filter_by(email=email).delete()
+        new_otp = OTPRecord(email=email, otp=otp_code)
+        db.session.add(new_otp)
+        db.session.commit()
+        
+        success = send_email_async(email, otp_code, action_type)
+        if success:
+            return jsonify({'message': 'OTP sent successfully'}), 200
+        else:
+            return jsonify({'error': 'Failed to send email. Check credentials.'}), 500
+            
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 @app.route('/api/register', methods=['POST'])
 def register():
     try:
-        # Ensure tables exist (quick fix for serverless environments)
         db.create_all()
-            
         data = request.json
         username = data.get('username')
+        email = data.get('email')
         password = data.get('password')
+        otp = data.get('otp')
         
-        if not username or not password:
-            return jsonify({'error': 'Username and password required'}), 400
+        if not all([username, email, password, otp]):
+            return jsonify({'error': 'All fields are required'}), 400
         
-        if User.query.filter_by(username=username).first():
-            return jsonify({'error': 'Username already exists'}), 400
+        otp_record = OTPRecord.query.filter_by(email=email, otp=otp).first()
+        if not otp_record:
+            return jsonify({'error': 'Invalid OTP'}), 400
+            
+        if (datetime.utcnow() - otp_record.created_at) > timedelta(minutes=10):
+            return jsonify({'error': 'OTP expired'}), 400
+        
+        if User.query.filter_by(email=email).first():
+            return jsonify({'error': 'Email already registered'}), 400
         
         hashed_password = generate_password_hash(password)
-        new_user = User(username=username, password_hash=hashed_password)
+        new_user = User(username=username, email=email, password_hash=hashed_password)
         db.session.add(new_user)
+        
+        OTPRecord.query.filter_by(email=email).delete()
         db.session.commit()
         
         return jsonify({'message': 'User registered successfully'}), 201
     except Exception as e:
-        print(f"Error during registration: {str(e)}")
-        return jsonify({'error': f"Internal Server Error: {str(e)}"}), 500
+        return jsonify({'error': str(e)}), 500
 
 @app.route('/api/login', methods=['POST'])
 def login():
     try:
-        # Ensure tables exist (quick fix for serverless environments)
         db.create_all()
-        
         data = request.json
-        username = data.get('username')
+        email = data.get('email')
         password = data.get('password')
     
-        user = User.query.filter_by(username=username).first()
+        user = User.query.filter_by(email=email).first()
         
         if user and check_password_hash(user.password_hash, password):
             login_user(user)
-            return jsonify({'message': 'Login successful', 'username': user.username})
+            return jsonify({'message': 'Login successful', 'username': user.username, 'email': user.email})
         
         return jsonify({'error': 'Invalid credentials'}), 401
     except Exception as e:
-        print(f"Error during login: {str(e)}")
-        return jsonify({'error': f"Internal Server Error: {str(e)}"}), 500
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/reset-password', methods=['POST'])
+def reset_password():
+    try:
+        data = request.json
+        email = data.get('email')
+        otp = data.get('otp')
+        new_password = data.get('new_password')
+        
+        if not all([email, otp, new_password]):
+            return jsonify({'error': 'Missing data fields'}), 400
+            
+        otp_record = OTPRecord.query.filter_by(email=email, otp=otp).first()
+        if not otp_record or (datetime.utcnow() - otp_record.created_at) > timedelta(minutes=10):
+            return jsonify({'error': 'Invalid or expired OTP'}), 400
+            
+        user = User.query.filter_by(email=email).first()
+        if not user:
+            return jsonify({'error': 'User not found'}), 404
+            
+        user.password_hash = generate_password_hash(new_password)
+        OTPRecord.query.filter_by(email=email).delete()
+        db.session.commit()
+        
+        return jsonify({'message': 'Password reset successfully'}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 @app.route('/api/logout', methods=['POST'])
 @login_required
