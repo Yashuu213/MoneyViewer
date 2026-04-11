@@ -111,12 +111,25 @@ def send_email_async(receiver_email, otp, action_type="verification"):
         print("WARNING: Email Credentials missing in environment.")
         return False
         
-    subject = f"Your OTP for {action_type}"
-    body_text = f"Hello, your OTP code is: {otp}\n\nIt is valid for 10 minutes."
+    subject = f"Your Hisaab.AI {action_type.capitalize()} Code"
     
-    msg = MIMEText(body_text)
+    html_content = f"""
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 12px; background-color: #ffffff;">
+        <h2 style="color: #4f46e5; text-align: center; margin-bottom: 24px;">Hisaab.AI Security</h2>
+        <p style="color: #334155; font-size: 16px;">Hello,</p>
+        <p style="color: #334155; font-size: 16px;">You recently requested a secure code ({action_type}) for your Hisaab.AI account. Here is your One-Time Password:</p>
+        <div style="background-color: #f8fafc; border: 1px dashed #cbd5e1; padding: 16px; text-align: center; border-radius: 8px; margin: 24px 0;">
+            <span style="font-size: 32px; font-weight: bold; letter-spacing: 6px; color: #0f172a;">{otp}</span>
+        </div>
+        <p style="color: #64748b; font-size: 14px; text-align: center;">This code will expire in exactly 10 minutes. Do not share this code with anyone.</p>
+        <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 24px 0;">
+        <p style="color: #94a3b8; font-size: 12px; text-align: center;">If you did not request this email, please ignore it.<br>&copy; {datetime.utcnow().year} Hisaab.AI Operations</p>
+    </div>
+    """
+    
+    msg = MIMEText(html_content, 'html')
     msg['Subject'] = subject
-    msg['From'] = f"Secure App <{sender_email}>"
+    msg['From'] = f"Hisaab.AI <{sender_email}>"
     msg['To'] = receiver_email
     
     try:
