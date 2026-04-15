@@ -50,7 +50,7 @@ const SearchableSelect = ({ options, value, onChange, placeholder }) => {
                         initial={{ opacity: 0, y: 5 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: 5 }}
-                        className="absolute z-50 w-full mt-2 pro-card overflow-hidden shadow-xl flex flex-col bg-white dark:bg-slate-900"
+                        className="absolute z-[110] w-full mt-2 pro-card overflow-hidden shadow-xl flex flex-col bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800"
                     >
                         <div className="p-2 border-b border-slate-100 dark:border-slate-800 flex items-center gap-2 bg-slate-50/50 dark:bg-slate-900/50">
                             <Search className="w-3 h-3 text-slate-400 ml-2" />
@@ -63,7 +63,21 @@ const SearchableSelect = ({ options, value, onChange, placeholder }) => {
                                 autoFocus
                             />
                         </div>
-                        <div className="max-h-[240px] overflow-y-auto p-1 space-y-0.5 custom-scrollbar">
+
+                        {/* Moved "New Entity" to the TOP for better mobile accessibility */}
+                        <div
+                            onClick={() => {
+                                onChange('ADD_NEW');
+                                setIsOpen(false);
+                                setSearch('');
+                            }}
+                            className="p-3 bg-indigo-600/5 text-indigo-600 dark:text-indigo-400 cursor-pointer flex items-center justify-center gap-2 font-bold text-[10px] uppercase tracking-widest hover:bg-indigo-600 hover:text-white transition-all border-b border-slate-100 dark:border-slate-800"
+                        >
+                            <UserPlus className="w-3 h-3" />
+                            <span>New Entry / Person</span>
+                        </div>
+
+                        <div className="max-h-[220px] overflow-y-auto p-1 space-y-0.5 custom-scrollbar">
                             {filteredOptions.length > 0 ? (
                                 filteredOptions.map((opt) => (
                                     <div
@@ -95,21 +109,11 @@ const SearchableSelect = ({ options, value, onChange, placeholder }) => {
                                     </div>
                                 ))
                             ) : (
-                                <div className="p-8 text-center">
-                                    <p className="text-xs font-bold text-slate-400">Registry Entry Missing</p>
+                                <div className="p-8 text-center text-slate-400">
+                                    <UserPlus className="w-6 h-6 mx-auto mb-2 opacity-20" />
+                                    <p className="text-[10px] uppercase font-bold tracking-tighter">No matches found</p>
                                 </div>
                             )}
-                        </div>
-                        <div
-                            onClick={() => {
-                                onChange('ADD_NEW');
-                                setIsOpen(false);
-                                setSearch('');
-                            }}
-                            className="p-3 bg-indigo-600/5 text-indigo-600 dark:text-indigo-400 cursor-pointer flex items-center justify-center gap-2 font-bold text-[10px] uppercase tracking-widest hover:bg-indigo-600 hover:text-white transition-all border-t border-slate-100 dark:border-slate-800"
-                        >
-                            <UserPlus className="w-3 h-3" />
-                            <span>New Entity</span>
                         </div>
                     </motion.div>
                 )}
